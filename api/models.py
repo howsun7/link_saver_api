@@ -1,5 +1,10 @@
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from passlib.apps import custom_app_context as ca_context
-from .app import db
+# from .app import db
+
+db = SQLAlchemy()
+migrate = Migrate()
 
 class User(db.Model):
 

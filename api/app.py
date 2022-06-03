@@ -4,20 +4,27 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
 from .errors import errors
+from .models import db, migrate, User
 from .users import users
 
 
+def create_app(config):
+    app = Flask(__name__)
+    # db = SQLAlchemy(app)
+    # migrate = Migrate(app, db)
+    auth = HTTPBasicAuth()
+    app.config.from_object(config)
+    
+    register_extensions(app)
+    return app
 
-app = Flask(__name__)
-app.register_blueprint(errors)
-app.register_blueprint(users)
-app.config.from_object('config.Config')
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-auth = HTTPBasicAuth()
-
-from .models import User
+def register_extensions(app):
+    db.init_app(app)
+    migrate.init_app(app, db)
+    app.register_blueprint(errors)
+    app.register_blueprint(users)
+    
+app = create_app('config.Config')
 
 @app.route("/")
 def index():
@@ -40,32 +47,13 @@ def custom():
 def health():
     return Response("OK", status=200)
 
-@app.route('/api/users/<int:id>')
-def get_user(id):
-    user = User.query.get(id)
-    if not user:
-        abort(400)
-    return jsonify({'username': user.username})
-
-@app.route('/api/users', methods=['POST']) 
-def create_user():
-    username = request.json.get('username')
-    password = request.json.get('password')
-
-    if username is None or password is None:
-        abort(400)
-    if User.query.filter_by(username=username).first() is not None:
-        abort(400)
-    user = User(username=username)
-    user.hash_password(password)
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'username': user.username}, 201, {'Location': url_for('get_user', id=user.user_id, external=True)})
 
 @app.route('/api/curriculums')
-def curriculums_list():
+def get_curriculums():
     pass
 
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'User': User}
+
+
