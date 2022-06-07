@@ -10,7 +10,7 @@ class User(db.Model):
 
     __tablename__ = 'users'
 
-    user_id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(32), index=True)
     password = db.Column(db.String(128))
 
@@ -19,3 +19,14 @@ class User(db.Model):
 
     def verify_password(self, password):
         return ca_context.verify(password, self.password)
+
+
+# class Curriculums(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(80))
+#     creater_id = db.Column(db.Integer, db.ForeignKey(""))
+
+# class Topics(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+#     name = db.Column(db.String(80))
+

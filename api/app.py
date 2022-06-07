@@ -9,10 +9,7 @@ from .users import users
 
 
 def create_app(config):
-    app = Flask(__name__)
-    # db = SQLAlchemy(app)
-    # migrate = Migrate(app, db)
-    auth = HTTPBasicAuth()
+    app = Flask(__name__)    
     app.config.from_object(config)
     
     register_extensions(app)
@@ -23,13 +20,24 @@ def register_extensions(app):
     migrate.init_app(app, db)
     app.register_blueprint(errors)
     app.register_blueprint(users)
-    
+
+
 app = create_app('config.Config')
+auth = HTTPBasicAuth()
+
+
+@auth.verify_password
+def verify_password(username, password):
+    user = User.query.filter_by(username=username).first()
+    if not user or not user.verify_password(password):
+        return False
+    g.user = user
+    return True
 
 @app.route("/")
+@auth.login_required
 def index():
     return Response("Hello, world!", status=200)
-
 
 @app.route("/custom", methods=["POST"])
 def custom():
@@ -42,11 +50,9 @@ def custom():
 
     return output
 
-
 @app.route("/health")
 def health():
     return Response("OK", status=200)
-
 
 @app.route('/api/curriculums')
 def get_curriculums():
@@ -55,5 +61,6 @@ def get_curriculums():
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'User': User}
+
 
 
