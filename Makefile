@@ -16,7 +16,7 @@ start:
 	@bash bin/run.sh
 
 install:
-	@pip install -r requirements/common.txt
+	@pip install -r requirements/common.txt -r requirements/prod.txt
 
 develop:
 	@pip install -r requirements/common.txt -r requirements/develop.txt
