@@ -3,7 +3,7 @@
 
 ## Installation
 
-To install the dependencies in develop.txt and common.txt in the requirements directory.
+To install the dependencies in develop.txt and common.txt in the requirements directory:
 
 ```bash
 make develop
@@ -11,11 +11,15 @@ make develop
 
 ## Usage
 
-To run the dev server on port 3000.
+To run the dev server on port 3000:
 
 ```bash
 bash bin/run.sh
 ```
 
+To run test:
+```bash
+make test
+```
 
 

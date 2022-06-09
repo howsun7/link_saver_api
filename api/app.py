@@ -26,7 +26,6 @@ app = create_app('config.Config')
 
 
 @app.route("/")
-@auth.login_required
 def index():
     return Response("Hello, world!", status=200)
 
