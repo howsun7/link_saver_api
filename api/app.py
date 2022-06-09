@@ -1,10 +1,10 @@
-from flask import Flask, Response, abort, jsonify, g, request, url_for
-from flask_httpauth import HTTPBasicAuth
+from flask import Flask, Response, abort, jsonify, request, url_for
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 
+from .auth import auth
 from .errors import errors
-from .models import db, migrate, User
+from .models import db, migrate, User, Curriculum, Topic
 from .users import users
 
 
@@ -23,16 +23,7 @@ def register_extensions(app):
 
 
 app = create_app('config.Config')
-auth = HTTPBasicAuth()
 
-
-@auth.verify_password
-def verify_password(username, password):
-    user = User.query.filter_by(username=username).first()
-    if not user or not user.verify_password(password):
-        return False
-    g.user = user
-    return True
 
 @app.route("/")
 @auth.login_required
@@ -56,11 +47,12 @@ def health():
 
 @app.route('/api/curriculums')
 def get_curriculums():
-    pass
+    curriculums = Curriculum.query.all()
+    return jsonify({'curriculums': curriculums})
 
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'User': User}
+    return {'db': db, 'User': User, 'Curriculum': Curriculum, 'Topic': Topic}
 
 
 

@@ -1,14 +1,15 @@
 from flask import Blueprint, Response, request, abort, jsonify, url_for, g
 
+from .auth import auth
+from .models import User, db, Curriculum, Topic
 
-from .models import User, db
 
 users = Blueprint('users', __name__, url_prefix='/api/users')
 
 
-@users.route('/<int:id>')
-def get_user(id):
-    user = User.query.get(id)
+@users.route('/<int:user_id>')
+def get_user(user_id):
+    user = User.query.get(user_id)
     if not user:
         abort(400)
     return jsonify({'username': user.username})
@@ -26,10 +27,26 @@ def create_user():
     user.hash_password(password)
     db.session.add(user)
     db.session.commit()
-    return jsonify({'username': user.username}, 201, {'Location': url_for('get_user', id=user.user_id, _external=True)})
-
+    return jsonify({'username': user.username}, 201, {'Location': url_for('users.get_user', user_id=user.id, _external=True)})
 
 @users.route('/<int:user_id>/curriculums')
-def index(user_id):
-	return Response('currciulums')
+def get_user_curriculums(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        abort(400)        
+    curriculums = user.curriculums.all()
+    return jsonify({'curriculums': curriculums})
+
+@users.route('/<int:user_id>/curriculums', methods=['POST'])
+def create_user_curriculum(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        abort(400)
+    curriculum_name = request.json.get('curriculumName')
+    curriculum = Curriculum(name=curriculum_name)
+    user.curriculums.append(curriculum)
+    db.session.add(user)
+    db.session.add(curriculum)
+    db.session.commit()
+    return jsonify({'curriculum': curriculum.name}, 201, {'Location': url_for('users.get_user_curriculums', user_id=user.id, _external=True)})
 
