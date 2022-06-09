@@ -30,11 +30,11 @@ class Curriculum(db.Model):
 
     id: int
     name: str
-    creater_id: int
+    creator_id: int
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80))
-    creater_id = db.Column(db.Integer, db.ForeignKey("users.id"))
+    creator_id = db.Column(db.Integer, db.ForeignKey("users.id"))
     topics = db.relationship('Topic', backref='curriculum', lazy='dynamic')
 
 @dataclass
